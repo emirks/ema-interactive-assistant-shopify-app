@@ -47,9 +47,10 @@
 **Repository**: `ema-interactive-assistant/` directory  
 **Purpose**: Shopify admin interface, app settings, theme editor integration  
 
-### Deploy to Railway/Vercel:
-1. Create new project from `ema-interactive-assistant/` directory
-2. Set environment variables:
+### Deploy to Vercel (RECOMMENDED):
+1. **Go to [vercel.com](https://vercel.com)** and import from GitHub
+2. **Vercel automatically detects Remix** - no configuration needed!
+3. Set environment variables:
    ```bash
    # Shopify App Credentials
    SHOPIFY_API_KEY=564256729c36fe4740cf7a84befaa490
@@ -58,25 +59,27 @@
    
    # Database
    DATABASE_URL=your_database_url
-   
-   # App URLs (automatically set by deployment platform)
-   SHOPIFY_APP_URL=https://YOUR_SHOPIFY_APP_DOMAIN.railway.app
    ```
 
-3. **Your Shopify app URL will be**: `https://YOUR_SHOPIFY_APP_DOMAIN.railway.app`
+4. **Your Shopify app URL will be**: `https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app`
+
+### Deploy to Railway (ALTERNATIVE):
+1. Create new project from `ema-interactive-assistant/` directory
+2. Railway will use the existing `railway.json` configuration
+3. Set the same environment variables as above
 
 ## 🔧 **Step 3: Update Configuration Files**
 
 ### A. Update `shopify.app.toml`:
 ```toml
 # Replace YOUR_SHOPIFY_APP_DOMAIN with your actual Shopify app deployment URL
-application_url = "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app"
+application_url = "https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app"
 
 [auth]
 redirect_urls = [
-  "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/auth/callback",
-  "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/auth/shopify/callback", 
-  "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/api/auth/callback"
+  "https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app/auth/callback",
+  "https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app/auth/shopify/callback", 
+  "https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app/api/auth/callback"
 ]
 ```
 
@@ -91,12 +94,12 @@ data-api-url="{{ block.settings.api_url | default: 'wss://YOUR_MAIN_SERVER_DOMAI
 1. **Go to**: [partners.shopify.com](https://partners.shopify.com)
 2. **Find your app**: "ema-interactive-assistant" 
 3. **Update App Setup**:
-   - **App URL**: `https://YOUR_SHOPIFY_APP_DOMAIN.railway.app`
+   - **App URL**: `https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app`
    - **Allowed redirection URLs**: 
      ```
-     https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/auth/callback
-     https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/auth/shopify/callback
-     https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/api/auth/callback
+     https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app/auth/callback
+     https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app/auth/shopify/callback
+     https://YOUR_SHOPIFY_APP_DOMAIN.vercel.app/api/auth/callback
      ```
 
 ## 🛍️ **Step 5: Install & Configure in Shopify Store**
@@ -146,4 +149,16 @@ data-api-url="{{ block.settings.api_url | default: 'wss://YOUR_MAIN_SERVER_DOMAI
 - **Widget not appearing**: Check theme customization settings
 - **No audio response**: Verify main server WebSocket URL
 - **Connection errors**: Check CORS settings and WebSocket protocols (wss://)
-- **Authentication issues**: Verify Shopify Partner Dashboard URLs match deployment URLs 
+- **Authentication issues**: Verify Shopify Partner Dashboard URLs match deployment URLs
+
+## 📚 **Platform-Specific Notes**
+
+### Vercel (Recommended for Shopify App):
+- ✅ **Zero configuration** - Vercel automatically detects Remix
+- ✅ **No vercel.json needed** - Works out of the box
+- ✅ **Excellent Remix support** with streaming and SSR
+
+### Railway (Good for both projects):
+- ✅ **Uses railway.json** configuration file
+- ✅ **Simple environment variable management**
+- ✅ **Good for full-stack applications** 

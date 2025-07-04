@@ -4,9 +4,9 @@ client_id = "564256729c36fe4740cf7a84befaa490"
 name = "ema-interactive-assistant"
 handle = "ema-interactive-assistant"
 
-# 🚀 SHOPIFY APP URL - Deploy ema-interactive-assistant to Railway/Vercel
+# 🚀 SHOPIFY APP URL - Deploy ema-interactive-assistant to Vercel (recommended)
 # This is where your Shopify app frontend lives (the admin interface)
-application_url = "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app"  # e.g., https://ema-interactive-assistant.railway.app
+application_url = "https://ema-interactive-assistant-shopify-a.vercel.app"  # e.g., https://ema-interactive-assistant.vercel.app
 
 embedded = true
 
@@ -32,9 +32,9 @@ scopes = "write_products"
 [auth]
 # 🚀 SHOPIFY APP REDIRECT URLs - Same as application_url above
 redirect_urls = [
-  "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/auth/callback", 
-  "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/auth/shopify/callback", 
-  "https://YOUR_SHOPIFY_APP_DOMAIN.railway.app/api/auth/callback"
+  "https://ema-interactive-assistant-shopify-a.vercel.app/auth/callback", 
+  "https://ema-interactive-assistant-shopify-a.vercel.app/auth/shopify/callback", 
+  "https://ema-interactive-assistant-shopify-a.vercel.app/api/auth/callback"
 ]
 
 [pos]
