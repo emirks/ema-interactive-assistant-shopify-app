@@ -85,7 +85,7 @@
 
 <!-- 🎯 VOICE BACKEND CONNECTION - Deploy main-server separately -->
 <!-- This widget connects to your main-server via WebSocket for voice processing -->
-<div class="ema-chat-widget" id="ema-chat-widget-container" data-api-url="{{ block.settings.api_url | default: 'wss://YOUR_MAIN_SERVER_DOMAIN.railway.app/user-audio-input' }}">
+<div class="ema-chat-widget" id="ema-chat-widget-container" data-api-url="{{ block.settings.api_url | default: 'wss://7fab-37-154-239-100.ngrok-free.app/user-audio-input' }}">
   <div class="ema-chat-icon" id="ema-chat-icon">
     <!-- SVG Icon for chat -->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
@@ -115,7 +115,7 @@
       "id": "api_url",
       "label": "🎯 Voice Backend URL",
       "info": "WebSocket URL for the main-server voice processing backend (deploy main-server separately)",
-      "default": "wss://YOUR_MAIN_SERVER_DOMAIN.railway.app/user-audio-input"
+      "default": "wss://7fab-37-154-239-100.ngrok-free.app/user-audio-input"
     }
   ]
 }
