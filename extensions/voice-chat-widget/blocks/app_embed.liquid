@@ -1,0 +1,122 @@
+{% comment %}
+  This is the main app embed block file.
+  It is registered in shopify.theme.extension.toml
+{% endcomment %}
+
+<style>
+  .ema-chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+  .ema-chat-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #008060; /* Shopify's primary green */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .ema-chat-icon:hover {
+    transform: scale(1.1);
+  }
+  .ema-chat-icon svg {
+    width: 32px;
+    height: 32px;
+    fill: white;
+  }
+  .ema-chat-window {
+    display: none; /* Hidden by default */
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .ema-chat-header {
+    background-color: #008060;
+    color: white;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ema-chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  .ema-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .ema-chat-body {
+    flex-grow: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  #ema-start-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #008060;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+</style>
+
+<!-- 🎯 VOICE BACKEND CONNECTION - Deploy main-server separately -->
+<!-- This widget connects to your main-server via WebSocket for voice processing -->
+<div class="ema-chat-widget" id="ema-chat-widget-container" data-api-url="{{ block.settings.api_url | default: 'wss://YOUR_MAIN_SERVER_DOMAIN.railway.app/user-audio-input' }}">
+  <div class="ema-chat-icon" id="ema-chat-icon">
+    <!-- SVG Icon for chat -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+  </div>
+  <div class="ema-chat-window" id="ema-chat-window">
+    <div class="ema-chat-header">
+      <h3>Voice Assistant</h3>
+      <button class="ema-close-btn" id="ema-close-btn">&times;</button>
+    </div>
+    <div class="ema-chat-body">
+      <p>Click start to talk to our shopping assistant!</p>
+      <button id="ema-start-btn">Start</button>
+      <p id="ema-status-text"></p>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Voice Chat Widget",
+  "target": "body",
+  "stylesheet": "style.css",
+  "javascript": "script.js",
+  "settings": [
+    {
+      "type": "url",
+      "id": "api_url",
+      "label": "🎯 Voice Backend URL",
+      "info": "WebSocket URL for the main-server voice processing backend (deploy main-server separately)",
+      "default": "wss://YOUR_MAIN_SERVER_DOMAIN.railway.app/user-audio-input"
+    }
+  ]
+}
+{% endschema %}
