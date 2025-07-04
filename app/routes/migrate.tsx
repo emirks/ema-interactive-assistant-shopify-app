@@ -11,83 +11,123 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     try {
         steps.push("🔄 Starting migration...");
 
-        // Try to create the Session table manually
-        await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "Session" (
-        "id" TEXT PRIMARY KEY,
-        "shop" TEXT NOT NULL,
-        "state" TEXT NOT NULL,
-        "isOnline" BOOLEAN DEFAULT false NOT NULL,
-        "scope" TEXT,
-        "expires" TIMESTAMP,
-        "accessToken" TEXT NOT NULL,
-        "userId" BIGINT,
-        "firstName" TEXT,
-        "lastName" TEXT,
-        "email" TEXT,
-        "accountOwner" BOOLEAN DEFAULT false NOT NULL,
-        "locale" TEXT,
-        "collaborator" BOOLEAN DEFAULT false,
-        "emailVerified" BOOLEAN DEFAULT false
-      );
-    `;
+        // First, try to connect and disconnect to test basic connectivity
+        await prisma.$connect();
+        steps.push("✅ Database connection established");
 
-        steps.push("✅ Session table created/verified");
+        // Check if Session table exists
+        try {
+            const tableExists = await prisma.$queryRaw`
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'Session'
+                );
+            `;
 
-        // Test the table by counting records
-        const sessionCount = await prisma.session.count();
-        steps.push(`✅ Table accessible, found ${sessionCount} sessions`);
+            if (!(tableExists as any)[0].exists) {
+                steps.push("📋 Creating Session table...");
 
-        migrationStatus = "✅ Success";
+                // Create the Session table with proper PostgreSQL syntax
+                await prisma.$executeRaw`
+                    CREATE TABLE "Session" (
+                        "id" TEXT PRIMARY KEY,
+                        "shop" TEXT NOT NULL,
+                        "state" TEXT NOT NULL,
+                        "isOnline" BOOLEAN DEFAULT false NOT NULL,
+                        "scope" TEXT,
+                        "expires" TIMESTAMP,
+                        "accessToken" TEXT NOT NULL,
+                        "userId" BIGINT,
+                        "firstName" TEXT,
+                        "lastName" TEXT,
+                        "email" TEXT,
+                        "accountOwner" BOOLEAN DEFAULT false NOT NULL,
+                        "locale" TEXT,
+                        "collaborator" BOOLEAN DEFAULT false,
+                        "emailVerified" BOOLEAN DEFAULT false
+                    );
+                `;
+                steps.push("✅ Session table created successfully");
+            } else {
+                steps.push("✅ Session table already exists");
+            }
+
+            // Test session operations
+            const sessionCount = await prisma.session.count();
+            steps.push(`✅ Session table accessible - Found ${sessionCount} sessions`);
+
+            migrationStatus = "✅ Success";
+
+        } catch (tableError: any) {
+            steps.push(`❌ Table operation failed: ${tableError.message}`);
+            migrationError = tableError.message;
+        }
 
     } catch (error: any) {
+        steps.push(`❌ Database connection failed: ${error.message}`);
         migrationError = error.message;
-        steps.push(`❌ Error: ${error.message}`);
-        console.error("Migration error:", error);
+    } finally {
+        // Always disconnect to free up connections
+        try {
+            await prisma.$disconnect();
+            steps.push("🔌 Database connection closed");
+        } catch (disconnectError) {
+            console.error("Error disconnecting from database:", disconnectError);
+        }
     }
 
     return json({
         migrationStatus,
         migrationError,
         steps,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        connectionPoolInfo: {
+            databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Missing',
+            nodeEnv: process.env.NODE_ENV,
+        }
     });
 };
 
-export default function Migrate() {
-    const { migrationStatus, migrationError, steps, timestamp } = useLoaderData<typeof loader>();
+export default function MigrationPage() {
+    const data = useLoaderData<typeof loader>();
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'monospace' }}>
+        <div style={{ padding: '20px', fontFamily: 'monospace', maxWidth: '800px' }}>
             <h1>🗄️ Database Migration</h1>
-            <p>Timestamp: {timestamp}</p>
+            <p><strong>Timestamp:</strong> {data.timestamp}</p>
 
-            <h2>Migration Status: {migrationStatus}</h2>
+            <h2>Migration Status: {data.migrationStatus}</h2>
 
-            <h3>Migration Steps:</h3>
+            <h3>📋 Migration Steps:</h3>
             <ul>
-                {steps.map((step, index) => (
-                    <li key={index}>{step}</li>
+                {data.steps.map((step, index) => (
+                    <li key={index} style={{ margin: '5px 0' }}>{step}</li>
                 ))}
             </ul>
 
-            {migrationError && (
+            {data.migrationError && (
                 <div>
-                    <h2>❌ Migration Error:</h2>
-                    <pre style={{ background: '#ffe6e6', padding: '10px', borderRadius: '4px', color: 'red' }}>
-                        {migrationError}
+                    <h3>❌ Migration Error:</h3>
+                    <pre style={{ background: '#ffebee', padding: '10px', borderRadius: '5px', whiteSpace: 'pre-wrap' }}>
+                        {data.migrationError}
                     </pre>
                 </div>
             )}
 
-            <h2>💡 Next Steps:</h2>
-            <ol>
-                <li>If migration successful: Test your main app at <code>/app</code></li>
-                <li>If failed: Check DATABASE_URL is properly set in Vercel</li>
-                <li>Run this route again after fixing issues</li>
-            </ol>
+            <h3>🔧 Connection Info:</h3>
+            <ul>
+                <li>Database URL: {data.connectionPoolInfo.databaseUrl}</li>
+                <li>Environment: {data.connectionPoolInfo.nodeEnv}</li>
+            </ul>
 
-            <p><strong>Refresh this page</strong> to run migration again</p>
+            <h3>💡 Next Steps:</h3>
+            <ul>
+                <li>If migration successful: Test your main app at <a href="/app">/app</a></li>
+                <li>If failed: Check DATABASE_URL includes connection pool parameters</li>
+                <li>Example: <code>postgresql://user:pass@host:port/db?connection_limit=1&pool_timeout=60</code></li>
+                <li>Refresh this page to run migration again</li>
+            </ul>
         </div>
     );
 } 
